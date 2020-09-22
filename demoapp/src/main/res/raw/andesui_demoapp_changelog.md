@@ -11,9 +11,6 @@
 - Libraries upgraded from unit tests and showcase module.
 - Gradle files cleanup.
 
-## 🛠 Fixes
-- AndesThumbnail: Use internal ImageView content drawable to keep aspect ratio. | Author: [@mzangl-meli](https://github.com/mzangl-meli)
-
 # v2.10.1
 ## 🛠 Fixes
 - AndesProgressIndicatorIndeterminate: Leak in progress animation | Author: [@orelvismeli](https://github.com/orelvismeli)
