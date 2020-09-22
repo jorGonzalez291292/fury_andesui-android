@@ -22,9 +22,12 @@ import com.mercadolibre.android.andesui.demoapp.feature.utils.PageIndicator
 import com.mercadolibre.android.andesui.demoapp.R
 import com.mercadolibre.android.andesui.textfield.AndesTextarea
 import com.mercadolibre.android.andesui.textfield.AndesTextfield
+import com.mercadolibre.android.andesui.textfield.AndesTextfieldCode
 import com.mercadolibre.android.andesui.textfield.content.AndesTextfieldLeftContent
 import com.mercadolibre.android.andesui.textfield.content.AndesTextfieldRightContent
+import com.mercadolibre.android.andesui.textfield.state.AndesTextfieldCodeState
 import com.mercadolibre.android.andesui.textfield.state.AndesTextfieldState
+import com.mercadolibre.android.andesui.textfield.style.AndesTextfieldCodeStyle
 
 class TextfieldShowcaseActivity : AppCompatActivity() {
 
@@ -70,9 +73,10 @@ class TextfieldShowcaseActivity : AppCompatActivity() {
 
             val dynamicTextfieldLayout = addDynamicTextfieldLayout(inflater)
             val dynamicTextareaLayout = addDynamicTextareaLayout(inflater)
+            val dynamicTextfieldCodeLayout = addDynamicTextfieldCodeLayout(inflater)
             val staticTextfieldLayout = addStaticTextfieldLayout(inflater)
 
-            return listOf(dynamicTextfieldLayout, dynamicTextareaLayout, staticTextfieldLayout)
+            return listOf(dynamicTextfieldLayout, dynamicTextareaLayout, dynamicTextfieldCodeLayout, staticTextfieldLayout)
         }
 
         @Suppress("LongMethod")
@@ -246,6 +250,67 @@ class TextfieldShowcaseActivity : AppCompatActivity() {
             }
 
             return layoutTextfield
+        }
+
+        private fun addDynamicTextfieldCodeLayout(inflater: LayoutInflater): View {
+            val layoutTextfieldCode = inflater.inflate(
+                R.layout.andesui_textfield_code_showcase,
+                null,
+                false
+            ) as ScrollView
+
+            val textfieldCode = layoutTextfieldCode.findViewById<AndesTextfieldCode>(R.id.andesui_textfield_code)
+            val updateButton = layoutTextfieldCode.findViewById<AndesButton>(R.id.change_button)
+            val clearButton = layoutTextfieldCode.findViewById<AndesButton>(R.id.clear_button)
+            val stateSpinner = layoutTextfieldCode.findViewById<Spinner>(R.id.state_spinner)
+            val styleSpinner = layoutTextfieldCode.findViewById<Spinner>(R.id.style_spinner)
+            val text = layoutTextfieldCode.findViewById<AndesTextfield>(R.id.text)
+            val label = layoutTextfieldCode.findViewById<AndesTextfield>(R.id.label_text)
+            val helper = layoutTextfieldCode.findViewById<AndesTextfield>(R.id.helper_text)
+
+            val stateAdapter = ArrayAdapter(
+                context,
+                android.R.layout.simple_spinner_item,
+                context.resources.getStringArray(R.array.textfield_code_state_spinner)
+            )
+            stateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            stateSpinner.adapter = stateAdapter
+
+            val styleAdapter = ArrayAdapter(
+                context,
+                android.R.layout.simple_spinner_item,
+                context.resources.getStringArray(R.array.textfield_code_style_spinner)
+            )
+            stateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            styleSpinner.adapter = styleAdapter
+
+
+            updateButton.setOnClickListener {
+                textfieldCode.text = text.text
+                textfieldCode.label = label.text
+                textfieldCode.helper = helper.text
+                textfieldCode.state = AndesTextfieldCodeState.valueOf(stateSpinner.selectedItem.toString().toUpperCase())
+                textfieldCode.style = AndesTextfieldCodeStyle.valueOf(styleSpinner.selectedItem.toString().toUpperCase())
+            }
+
+            clearButton.setOnClickListener {
+                // reset UI
+                text.text = null
+                label.text = null
+                helper.text = null
+                stateSpinner.setSelection(0)
+                styleSpinner.setSelection(0)
+
+                // reset AndesTextfieldCode's properties.
+                textfieldCode.text = ""
+                textfieldCode.label = null
+                textfieldCode.helper = null
+                textfieldCode.state = AndesTextfieldCodeState.IDLE
+                textfieldCode.style = AndesTextfieldCodeStyle.THREESOME
+            }
+
+
+            return layoutTextfieldCode
         }
 
         private fun addStaticTextfieldLayout(inflater: LayoutInflater): View {

@@ -92,6 +92,7 @@
     <string name="andesui_demoapp_clear_button">Clear</string>
     <string name="andesui_demoapp_textfield">Andes Textfield</string>
     <string name="andesui_demoapp_textfield_state_text">State:</string>
+    <string name="andesui_demoapp_textfield_style_text">Style:</string>
     <string name="andesui_demoapp_textfield_prefix_text">Left component:</string>
     <string name="andesui_demoapp_textfield_suffix_text">Right component:</string>
     <string name="andesui_demoapp_counter_text">Counter:</string>
@@ -215,6 +216,18 @@
         <item>Error</item>
         <item>Disabled</item>
         <item>Readonly</item>
+    </string-array>
+
+    <string-array name="textfield_code_state_spinner">
+        <item>Idle</item>
+        <item>Error</item>
+        <item>Disabled</item>
+    </string-array>
+
+    <string-array name="textfield_code_style_spinner">
+        <item>Threesome</item>
+        <item>Foursome</item>
+        <item>Three_by_three</item>
     </string-array>
 
     <string-array name="suffix_spinner">

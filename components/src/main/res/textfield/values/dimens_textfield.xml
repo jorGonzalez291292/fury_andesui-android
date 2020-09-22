@@ -55,4 +55,11 @@
     <dimen name="andes_textfield_dash">1dp</dimen>
 
     <dimen name="andes_textfield_icon_diameter">12dp</dimen>
+
+    <dimen name="andes_textfield_box_group_margin">16dp</dimen>
+
+    <dimen name="andes_textfield_box_margin">8dp</dimen>
+
+    <dimen name="andes_textfield_box_width">38dp</dimen>
+
 </resources>

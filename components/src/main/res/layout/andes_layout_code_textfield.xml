@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/andes_textfield_code_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:parentTag="android.support.constraint.ConstraintLayout">
+
+    <TextView
+        android:id="@+id/andes_textfield_code_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/andes_textfield_label_paddingLeft"
+        android:text="@string/andes_textfield_label_text"
+        android:textSize="@dimen/andes_textfield_label_textSize"
+        app:layout_constraintBottom_toTopOf="@+id/andes_textfield_box_code_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="RtlSymmetry" />
+
+    <LinearLayout
+        android:id="@+id/andes_textfield_box_code_container"
+        app:layout_constraintTop_toBottomOf="@+id/andes_textfield_code_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/andes_textfield_container_marginTop"
+        android:minHeight="@dimen/andes_textfield_container_minHeight"
+        android:addStatesFromChildren="true"
+        tools:itemCount="3"
+        tools:listitem="@layout/andes_textfield_box"/>
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/andes_textfield_code_icon"
+        android:layout_width="@dimen/andes_textfield_icon_diameter"
+        android:layout_height="@dimen/andes_textfield_icon_diameter"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="@dimen/andes_textfield_container_marginTop"
+        android:maxHeight="@dimen/andes_textfield_icon_diameter"
+        android:minHeight="@dimen/andes_textfield_icon_diameter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/andes_textfield_box_code_container" />
+
+    <TextView
+        android:id="@+id/andes_textfield_code_helper"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="@dimen/andes_textfield_helper_marginTop"
+        android:text="@string/andes_textfield_helper_text"
+        android:textSize="@dimen/andes_textfield_helper_textSize"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/andes_textfield_code_icon"
+        app:layout_constraintTop_toBottomOf="@+id/andes_textfield_box_code_container" />
+
+</merge>

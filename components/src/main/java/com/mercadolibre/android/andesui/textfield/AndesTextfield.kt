@@ -21,7 +21,6 @@ import com.mercadolibre.android.andesui.button.AndesButton
 import com.mercadolibre.android.andesui.color.AndesColor
 import com.mercadolibre.android.andesui.color.toAndesColor
 import com.mercadolibre.android.andesui.icons.IconProvider
-import com.mercadolibre.android.andesui.progress.LoadingSpinner
 import com.mercadolibre.android.andesui.textfield.content.AndesTextfieldLeftContent
 import com.mercadolibre.android.andesui.textfield.content.AndesTextfieldRightContent
 import com.mercadolibre.android.andesui.textfield.factory.AndesTextfieldAttrs
@@ -30,9 +29,6 @@ import com.mercadolibre.android.andesui.textfield.factory.AndesTextfieldConfigur
 import com.mercadolibre.android.andesui.textfield.factory.AndesTextfieldConfigurationFactory
 import com.mercadolibre.android.andesui.textfield.maskTextField.TextFieldMaskWatcher
 import com.mercadolibre.android.andesui.textfield.state.AndesTextfieldState
-import com.mercadolibre.android.andesui.textfield.state.AndesTextfieldState.DISABLED
-import com.mercadolibre.android.andesui.textfield.state.AndesTextfieldState.IDLE
-import com.mercadolibre.android.andesui.textfield.state.AndesTextfieldState.READONLY
 import com.mercadolibre.android.andesui.utils.buildColoredAndesBitmapDrawable
 
 @Suppress("TooManyFunctions")
@@ -361,9 +357,7 @@ class AndesTextfield : ConstraintLayout {
 
         iconComponent.setImageDrawable(config.icon)
         if (config.icon != null && state != AndesTextfieldState.READONLY) {
-            if (!config.helperText.isNullOrEmpty()) {
-                iconComponent.visibility = View.VISIBLE
-            }
+            iconComponent.visibility = if (!config.helperText.isNullOrEmpty()) View.VISIBLE else View.GONE
         } else {
             iconComponent.visibility = View.GONE
         }
@@ -675,6 +669,14 @@ class AndesTextfield : ConstraintLayout {
 
     fun requestFocusOnTextField() {
         textComponent.requestFocus()
+    }
+
+    /**
+     * Set alignment for textComponent
+     * Only visible for internal development
+     */
+    internal fun setAndesTextAlignment(textAlignment: Int) {
+        textComponent.textAlignment = textAlignment
     }
 
     private fun createConfig() = AndesTextfieldConfigurationFactory.create(context, andesTextfieldAttrs)

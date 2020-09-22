@@ -57,4 +57,24 @@
             <enum name="readonly" value="23" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="AndesTextfieldCode" tools:ignore="ResourceName">
+
+        <attr name="andesTextfieldCodeLabel" format="reference" />
+
+        <attr name="andesTextfieldCodeHelper" format="reference" />
+
+        <attr name="andesTextfieldCodeStyle">
+            <enum name="threesome" value="10" />
+            <enum name="foursome" value="11" />
+            <enum name="three_by_three" value="12" />
+        </attr>
+
+        <attr name="andesTextfieldCodeState">
+            <enum name="idle" value="20" />
+            <enum name="disable" value="21" />
+            <enum name="error" value="22" />
+        </attr>
+    </declare-styleable>
+
 </resources>
