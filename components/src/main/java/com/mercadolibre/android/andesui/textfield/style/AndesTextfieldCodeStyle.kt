@@ -1,6 +1,7 @@
 package com.mercadolibre.android.andesui.textfield.style
 
-import java.util.*
+import java.util.Locale
+
 
 /**
  * Defines the possible styles an [AndesTextfieldCode] can take.
