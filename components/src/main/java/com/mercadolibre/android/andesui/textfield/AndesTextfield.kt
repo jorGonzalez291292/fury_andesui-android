@@ -8,6 +8,7 @@ import android.text.InputFilter
 import android.text.InputType
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
+import android.text.method.KeyListener
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -677,6 +678,14 @@ class AndesTextfield : ConstraintLayout {
      */
     internal fun setAndesTextAlignment(textAlignment: Int) {
         textComponent.textAlignment = textAlignment
+    }
+
+    internal fun isTextFieldFocusableInTouchMode(focusable: Boolean) {
+        textComponent.isFocusableInTouchMode = focusable
+    }
+
+    internal fun setAndesTextFieldKeyListener(keyListener: OnKeyListener) {
+        textComponent.setOnKeyListener(keyListener)
     }
 
     private fun createConfig() = AndesTextfieldConfigurationFactory.create(context, andesTextfieldAttrs)

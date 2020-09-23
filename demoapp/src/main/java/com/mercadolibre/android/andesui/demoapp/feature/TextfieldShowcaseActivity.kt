@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -291,6 +292,17 @@ class TextfieldShowcaseActivity : AppCompatActivity() {
                 textfieldCode.helper = helper.text
                 textfieldCode.state = AndesTextfieldCodeState.valueOf(stateSpinner.selectedItem.toString().toUpperCase())
                 textfieldCode.style = AndesTextfieldCodeStyle.valueOf(styleSpinner.selectedItem.toString().toUpperCase())
+                textfieldCode.setOnTextChangeListener(object : AndesTextfieldCode.OnTextChangeListener {
+                    override fun onChange(text: String) {
+                        Log.d("JORGE", "CODE TEXT CHANGE")
+                    }
+                })
+
+                textfieldCode.setOnCompleteListener(object : AndesTextfieldCode.OnCompletionListener {
+                    override fun onComplete() {
+                        Log.d("JORGE", "CODE COMPLETE")
+                    }
+                })
             }
 
             clearButton.setOnClickListener {
