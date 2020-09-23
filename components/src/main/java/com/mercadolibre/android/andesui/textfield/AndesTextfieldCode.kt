@@ -47,7 +47,6 @@ class AndesTextfieldCode : ConstraintLayout {
         set(value) {
             andesTextfieldCodeAttrs = andesTextfieldCodeAttrs.copy(helper = value)
             val config = createConfig()
-            setupColorComponents(config)
             setupHelperComponent(config)
         }
 
@@ -61,7 +60,6 @@ class AndesTextfieldCode : ConstraintLayout {
             val config = createConfig()
             setupEnabledView()
             setupColorComponents(config)
-            setupHelperComponent(config)
             setupBoxStateComponent(config)
         }
 
@@ -199,7 +197,6 @@ class AndesTextfieldCode : ConstraintLayout {
      * Gets data from the config and set Style for boxes.
      */
     private fun setupBoxStyleComponent(config: AndesTextfieldCodeConfiguration) {
-        val currentText = text
         textfieldBoxCodeContainer.removeAllViews()
         val boxesIterator = config.boxesPattern.iterator()
         while (boxesIterator.hasNext()) {
@@ -209,7 +206,7 @@ class AndesTextfieldCode : ConstraintLayout {
                 setupMarginBetweenBoxes(config, boxes == 0)
             }
         }
-        text = currentText?.takeIf { it.isNotEmpty() }
+        setupTextComponent(currentText)
     }
 
     /**
