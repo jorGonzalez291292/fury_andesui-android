@@ -58,7 +58,7 @@ class AndesTextfieldCode : ConstraintLayout {
         set(value) {
             andesTextfieldCodeAttrs = andesTextfieldCodeAttrs.copy(state = value)
             val config = createConfig()
-            setupEnabledView()
+            setupEnabledView(config)
             setupColorComponents(config)
             setupBoxStateComponent(config)
         }
@@ -81,8 +81,14 @@ class AndesTextfieldCode : ConstraintLayout {
     private lateinit var iconComponent: SimpleDraweeView
     private var currentText: String? = null
 
-    constructor(context: Context?) : super(context) {
-        initAttrs(LABEL_DEFAULT, HELP_LABEL_DEFAULT, STYLE_DEFAULT, STATE_DEFAULT)
+    constructor(
+        context: Context,
+        label: String? = LABEL_DEFAULT,
+        helpLabel: String? = HELP_LABEL_DEFAULT,
+        style: AndesTextfieldCodeStyle = STYLE_DEFAULT,
+        state: AndesTextfieldCodeState = STATE_DEFAULT) : super(context) {
+
+        initAttrs(label, helpLabel, style, state)
     }
 
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
@@ -91,15 +97,6 @@ class AndesTextfieldCode : ConstraintLayout {
 
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         initAttrs(attrs)
-    }
-
-    constructor(
-        context: Context,
-        label: String?, helpLabel: String?,
-        style: AndesTextfieldCodeStyle,
-        state: AndesTextfieldCodeState) : super(context) {
-
-        initAttrs(label, helpLabel, style, state)
     }
 
     private fun initAttrs(attrs: AttributeSet?) {
@@ -121,7 +118,7 @@ class AndesTextfieldCode : ConstraintLayout {
     private fun setupComponents(config: AndesTextfieldCodeConfiguration) {
         initComponents()
         setupViewId()
-        setupEnabledView()
+        setupEnabledView(config)
         setupViewAsClickable()
         setupLabelComponent(config)
         setupHelperComponent(config)
@@ -155,16 +152,10 @@ class AndesTextfieldCode : ConstraintLayout {
         textfieldBoxCodeContainer.isFocusable = true
     }
 
-    private fun setupEnabledView() {
-        if (state == AndesTextfieldCodeState.DISABLED) {
-            isEnabled = false
-            textfieldBoxCodeContainer.isEnabled = isEnabled
-            textfieldCodeContainer.isEnabled = isEnabled
-        } else {
-            isEnabled = true
-            textfieldBoxCodeContainer.isEnabled = isEnabled
-            textfieldCodeContainer.isEnabled = isEnabled
-        }
+    private fun setupEnabledView(config: AndesTextfieldCodeConfiguration) {
+        isEnabled = config.isEnable
+        textfieldBoxCodeContainer.isEnabled = isEnabled
+        textfieldCodeContainer.isEnabled = isEnabled
     }
 
     /**
