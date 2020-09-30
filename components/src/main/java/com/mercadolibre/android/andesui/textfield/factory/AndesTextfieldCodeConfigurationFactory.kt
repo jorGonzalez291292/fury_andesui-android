@@ -25,7 +25,8 @@ internal data class AndesTextfieldCodeConfiguration(
     val marginBetweenBoxes: Int,
     val marginBetweenGroups: Int,
     val typeface: Typeface,
-    val icon: Drawable?
+    val icon: Drawable?,
+    val isEnable: Boolean
 )
 
 internal object AndesTextfieldCodeConfigurationFactory {
@@ -46,7 +47,8 @@ internal object AndesTextfieldCodeConfigurationFactory {
                 marginBetweenBoxes = resolveMarginBetweenBoxes(context, style.style),
                 marginBetweenGroups = resolveMarginBetweenGroups(context, style.style),
                 typeface = resolveTypeface(context),
-                icon = resolveIcon(context, state.state)
+                icon = resolveIcon(context, state.state),
+                isEnable = resolveIfEnabled(state)
             )
         }
     }
@@ -58,6 +60,7 @@ internal object AndesTextfieldCodeConfigurationFactory {
     private fun resolveLabelSize(context: Context): Float = context.resources.getDimension(R.dimen.andes_textfield_label_textSize)
     private fun resolveTypeface(context: Context) = context.getFontOrDefault(R.font.andes_font_regular)
     private fun resolveIcon(context: Context, state: AndesTextfieldStateInterface): Drawable? = state.icon(context)
+    private fun resolveIfEnabled(state: AndesTextfieldCodeState): Boolean = state != AndesTextfieldCodeState.DISABLED
     private fun resolveBoxPatter(style: AndesTextfieldCodeStyleInterface): IntArray = style.pattern()
     private fun resolveMarginBetweenBoxes(
         context: Context,

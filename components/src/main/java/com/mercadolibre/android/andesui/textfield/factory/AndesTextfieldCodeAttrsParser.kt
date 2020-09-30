@@ -21,12 +21,12 @@ internal data class AndesTextfieldCodeAttrs(
  */
 internal object AndesTextfieldCodeAttrsParser {
 
-    private const val ANDES_CODE_TEXTFIELD_STYLE_THREESOME = "10"
-    private const val ANDES_CODE_TEXTFIELD_STYLE_FOURSOME = "11"
-    private const val ANDES_CODE_TEXTFIELD_STYLE_THREE_BY_THREE = "12"
-    private const val ANDES_CODE_TEXTFIELD_STATE_IDLE = "20"
-    private const val ANDES_CODE_TEXTFIELD_STATE_DISABLE = "21"
-    private const val ANDES_CODE_TEXTFIELD_STATE_ERROR = "22"
+    private const val ANDES_CODE_TEXTFIELD_STYLE_THREESOME = "1000"
+    private const val ANDES_CODE_TEXTFIELD_STYLE_FOURSOME = "1001"
+    private const val ANDES_CODE_TEXTFIELD_STYLE_THREE_BY_THREE = "1002"
+    private const val ANDES_CODE_TEXTFIELD_STATE_IDLE = "2000"
+    private const val ANDES_CODE_TEXTFIELD_STATE_DISABLE = "2001"
+    private const val ANDES_CODE_TEXTFIELD_STATE_ERROR = "2002"
 
     fun parse(context: Context, attr: AttributeSet?): AndesTextfieldCodeAttrs {
         val typedArray = context.obtainStyledAttributes(attr, R.styleable.AndesTextfieldCode)
