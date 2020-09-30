@@ -300,9 +300,6 @@ class TextfieldShowcaseActivity : AppCompatActivity() {
             })
 
             updateButton.setOnClickListener {
-                textfieldCode.text = text.text
-                textfieldCode.label = label.text
-                textfieldCode.helper = helper.text
                 val currentState = textfieldCode.state
                 val newState = AndesTextfieldCodeState.valueOf(stateSpinner.selectedItem.toString().toUpperCase())
                 if (currentState != newState) {
@@ -313,6 +310,10 @@ class TextfieldShowcaseActivity : AppCompatActivity() {
                 if (currentStyle != newStyle) {
                     textfieldCode.style = newStyle
                 }
+
+                textfieldCode.text = text.text
+                textfieldCode.label = label.text
+                textfieldCode.helper = helper.text
             }
 
             clearButton.setOnClickListener {

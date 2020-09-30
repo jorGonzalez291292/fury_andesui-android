@@ -233,8 +233,10 @@ class AndesTextfieldCode : ConstraintLayout {
     private fun setUpAndesTextfieldCodeWatcher(config: AndesTextfieldCodeConfiguration) {
         textChangedHandler = AndesCodeTextChangedHandler(config.boxesPattern.sum(),
             onChange = { text ->
-                currentText = text
-                onTextChangeListener?.onChange(currentText.orEmpty())
+                text.takeIf { it != currentText }?.let {
+                    currentText = it
+                    onTextChangeListener?.onChange(it)
+                }
             },
             onComplete = { isFull -> onCompletionListener?.onComplete(isFull) })
     }
@@ -302,41 +304,40 @@ class AndesTextfieldCode : ConstraintLayout {
      */
     private fun setupTextComponent(newText: String?, startIndex: Int = 0) {
         var childCount = textfieldBoxCodeContainer.childCount
-        if (!newText.isNullOrEmpty()) {
-            textChangedHandler.reset(startIndex)
+        val cleanText = newText.takeIf { !it.isNullOrEmpty() }?.replace("\\D+".toRegex(), "")
+        textChangedHandler.reset(startIndex)
+        if (!cleanText.isNullOrEmpty()) {
             if (startIndex == 0) {
                 focusManagement.reset()
             }
-            val chars = newText.replace("\\D+".toRegex(), "").also {
-                if (it.length >= childCount) {
-                    it.substring(0, childCount)
-                }
-                currentText = it
+            val boxTextArray = Array(childCount) { DIRTY_CHARACTER }
+
+            IntRange(0, min(boxTextArray.lastIndex, cleanText.lastIndex)).forEach {
+                boxTextArray[it] = "${cleanText[it]}"
             }
-            val auxArray = Array(childCount) { DIRTY_CHARACTER }
-            val auxIndices = IntRange(0, min(auxArray.lastIndex, chars.lastIndex))
-
-            auxIndices.forEach { auxArray[it] = "${chars[it]}" }
-
-            val emptyBoxes = childCount - startIndex
-            var endIndex = (startIndex + min(emptyBoxes, auxArray.lastIndex))
-            endIndex = endIndex.takeIf { it < childCount } ?: endIndex - 1
-
             var charIndex = 0
+            var lastIsDirty = false
+            val emptyBoxes = childCount - startIndex
+            val endIndex = (startIndex + min(emptyBoxes - 1, boxTextArray.lastIndex))
             val indices = IntRange(startIndex, endIndex)
+
             foreachBox(indices) { _, boxView ->
-                var auxText = auxArray[charIndex++]
-                if (auxText == DIRTY_CHARACTER) {
-                    boxView.setAndesFocusableInTouchMode(false)
-                } else {
-                    auxText = DIRTY_CHARACTER + auxText
+                var boxText = boxTextArray[charIndex++]
+                boxText = boxText.takeIf { it == DIRTY_CHARACTER } ?: "$DIRTY_CHARACTER$boxText"
+
+                if (boxText == DIRTY_CHARACTER) {
+                    boxView.setAndesFocusableInTouchMode(!lastIsDirty)
+                    lastIsDirty = true
                 }
-                boxView.text = auxText
+
+                boxView.text = boxText
             }
         } else {
-            currentText = null
-            foreachBox(childCount--..0) { _, boxView ->
-                boxView.text = currentText
+            focusManagement.reset(childCount - 1)
+            for (index in --childCount downTo 0) {
+                getBoxAt(index)?.let { boxView ->
+                    boxView.text = cleanText
+                }
             }
         }
     }
@@ -374,7 +375,7 @@ class AndesTextfieldCode : ConstraintLayout {
             override fun onPaste(): Boolean {
                 val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager?
                 val textToPaste = clipboard?.primaryClip?.getItemAt(0)?.text
-                textToPaste?.let { setupTextComponent(it.toString(), indexView) }
+                textToPaste?.let { setupTextComponent("$it", indexView) }
                 return true
             }
         })
@@ -407,7 +408,7 @@ class AndesTextfieldCode : ConstraintLayout {
     }
 
     private fun foreachBox(range: IntRange, action: (Int, AndesTextfield) -> Unit) {
-        for (index in range) {
+        for(index in range) {
             getBoxAt(index)?.let {
                 action(index, it)
             }

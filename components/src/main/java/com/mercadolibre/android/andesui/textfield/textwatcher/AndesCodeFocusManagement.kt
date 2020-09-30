@@ -22,7 +22,7 @@ internal class AndesCodeFocusManagement(
         }
     }
 
-    fun reset() {
-        currentIndexFocus = 0
+    fun reset(from: Int = 0) {
+        currentIndexFocus = from
     }
 }

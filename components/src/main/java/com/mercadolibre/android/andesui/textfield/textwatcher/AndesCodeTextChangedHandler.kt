@@ -12,15 +12,15 @@ internal class AndesCodeTextChangedHandler(
 
     fun onTextChanged(charSequence: CharSequence, indexChild: Int) {
         val oldCharSequence = textArray[indexChild]
-        if (oldCharSequence != charSequence.toString()) {
-            textArray[indexChild] = charSequence.toString()
+        if (oldCharSequence != charSequence) {
+            textArray[indexChild] = "$charSequence"
             val currentText = textArray.joinToString(separator = "")
             onChange(currentText)
             onComplete(currentText.length == boxCount)
         }
     }
 
-    fun reset(from: Int) {
+    fun reset(from: Int = 0) {
         IntRange(from, textArray.lastIndex).forEach { textArray[it] = "" }
     }
 }
