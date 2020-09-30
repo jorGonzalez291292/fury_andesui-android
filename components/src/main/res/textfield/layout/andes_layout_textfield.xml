@@ -37,7 +37,7 @@
             app:layout_constraintStart_toStartOf="@id/andes_textfield_text_container"
             app:layout_constraintTop_toTopOf="@id/andes_textfield_text_container" />
 
-        <EditText
+        <com.mercadolibre.android.andesui.textfield.AndesEditText
             android:id="@+id/andes_textfield_edittext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

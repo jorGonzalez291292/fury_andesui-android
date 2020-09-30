@@ -4,17 +4,53 @@ import android.text.Editable
 import android.text.TextWatcher
 
 internal class AndesTextfieldBoxWatcher(
-    private val andesTextfieldCodeWatcher: AndesTextfieldCodeWatcher,
-    private val indexView: Int
-    ): TextWatcher {
+    private val andesCodeTextChangedHandler: AndesCodeTextChangedHandler,
+    private val focusManagement: AndesCodeFocusManagement,
+    private val indexChild: Int
+) : TextWatcher {
+
+    private var isRunning = false
+    private var isDeleting = false
+    private var wasDirty = false
+
     override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) {
-        andesTextfieldCodeWatcher.isDeleting = count > after
+        isDeleting = count > after
+        wasDirty = charSequence.isEmpty() || charSequence.length == 1 && charSequence.contains(DIRTY_CHARACTER)
     }
 
     override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
-        andesTextfieldCodeWatcher.onTextChanged(charSequence, indexView)
+        if (!wasDirty || !isDeleting) {
+            val textToChange = charSequence.takeIf { it.isEmpty() || !charSequence.contains(DIRTY_CHARACTER) }
+                ?: charSequence.filter { it != DIRTY_CHARACTER[0] }.takeIf { it.isNotEmpty() || !wasDirty }
+            textToChange?.let { andesCodeTextChangedHandler.onTextChanged(it, indexChild) }
+        }
     }
 
-    override fun afterTextChanged(editable: Editable) = Unit
+    override fun afterTextChanged(editable: Editable) {
+        if (isRunning) {
+            return
+        }
 
+        isRunning = true
+
+        if (!editable.contains(DIRTY_CHARACTER)) {
+            when {
+                editable.isNotEmpty() -> {
+                    focusManagement.goToNextFocus()
+                }
+                editable.isEmpty() && indexChild > 0 -> {
+                    focusManagement.goToPreviousFocus()
+                }
+            }
+        } else if (editable.length > 1) {
+            focusManagement.goToNextFocus()
+        }
+
+        isRunning = false
+    }
+
+
+    companion object {
+        const val DIRTY_CHARACTER = "\r"
+    }
 }

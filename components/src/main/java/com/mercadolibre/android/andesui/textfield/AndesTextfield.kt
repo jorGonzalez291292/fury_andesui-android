@@ -8,12 +8,10 @@ import android.text.InputFilter
 import android.text.InputType
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
-import android.text.method.KeyListener
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.facebook.drawee.view.SimpleDraweeView
@@ -42,6 +40,7 @@ class AndesTextfield : ConstraintLayout {
         get() = textComponent.text.toString()
         set(value) {
             textComponent.setText(maskWatcher?.getTextWithMask(value) ?: value)
+            textComponent.setSelection(value?.length ?: 0)
             setupCounterComponent(createConfig())
         }
 
@@ -192,7 +191,7 @@ class AndesTextfield : ConstraintLayout {
     private lateinit var labelComponent: TextView
     private lateinit var helperComponent: TextView
     private lateinit var counterComponent: TextView
-    private lateinit var textComponent: EditText
+    private lateinit var textComponent: AndesEditText
     private lateinit var iconComponent: SimpleDraweeView
     private lateinit var leftComponent: FrameLayout
     private lateinit var rightComponent: FrameLayout
@@ -325,7 +324,7 @@ class AndesTextfield : ConstraintLayout {
      */
     private fun setupInputType() {
         textComponent.inputType = inputType
-        textComponent.setSelection(textComponent.text.length)
+        textComponent.setSelection(textComponent.text?.length ?: 0)
     }
 
     /**
@@ -554,7 +553,7 @@ class AndesTextfield : ConstraintLayout {
             })
 
             val clear: SimpleDraweeView = rightComponent.getChildAt(0) as SimpleDraweeView
-            clear.setOnClickListener { textComponent.text.clear() }
+            clear.setOnClickListener { textComponent.text?.clear() }
         }
     }
 
@@ -680,12 +679,17 @@ class AndesTextfield : ConstraintLayout {
         textComponent.textAlignment = textAlignment
     }
 
-    internal fun isTextFieldFocusableInTouchMode(focusable: Boolean) {
-        textComponent.isFocusableInTouchMode = focusable
+    internal fun setAndesFocusableInTouchMode(isFocusableInTouchMode: Boolean) {
+        textComponent.isFocusableInTouchMode = isFocusableInTouchMode
     }
 
-    internal fun setAndesTextFieldKeyListener(keyListener: OnKeyListener) {
-        textComponent.setOnKeyListener(keyListener)
+    internal fun setAndesFocusChangeListener(onFocusChangeListener: OnFocusChangeListener) {
+        textComponent.onFocusChangeListener = onFocusChangeListener
+    }
+
+    internal fun setAndesTextContextMenuItemListener(
+        contextMenuItemListener: AndesEditText.OnTextContextMenuItemListener) {
+        textComponent.setOnTextContextMenuItemListener(contextMenuItemListener)
     }
 
     private fun createConfig() = AndesTextfieldConfigurationFactory.create(context, andesTextfieldAttrs)

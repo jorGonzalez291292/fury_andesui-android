@@ -285,24 +285,34 @@ class TextfieldShowcaseActivity : AppCompatActivity() {
             stateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             styleSpinner.adapter = styleAdapter
 
+            textfieldCode.setOnTextChangeListener(object : AndesTextfieldCode.OnTextChangeListener {
+                override fun onChange(text: String) {
+                    Log.d("JORGE", "TEXT CHANGE: $text")
+                }
+            })
+
+            textfieldCode.setOnCompleteListener(object : AndesTextfieldCode.OnCompletionListener {
+                override fun onComplete(isFull: Boolean) {
+                    if (isFull) {
+                        Log.d("JORGE", "TEXT COMPLETE: ${textfieldCode.text}")
+                    }
+                }
+            })
 
             updateButton.setOnClickListener {
                 textfieldCode.text = text.text
                 textfieldCode.label = label.text
                 textfieldCode.helper = helper.text
-                textfieldCode.state = AndesTextfieldCodeState.valueOf(stateSpinner.selectedItem.toString().toUpperCase())
-                textfieldCode.style = AndesTextfieldCodeStyle.valueOf(styleSpinner.selectedItem.toString().toUpperCase())
-                textfieldCode.setOnTextChangeListener(object : AndesTextfieldCode.OnTextChangeListener {
-                    override fun onChange(text: String) {
-                        Log.d("JORGE", "CODE TEXT CHANGE")
-                    }
-                })
-
-                textfieldCode.setOnCompleteListener(object : AndesTextfieldCode.OnCompletionListener {
-                    override fun onComplete() {
-                        Log.d("JORGE", "CODE COMPLETE")
-                    }
-                })
+                val currentState = textfieldCode.state
+                val newState = AndesTextfieldCodeState.valueOf(stateSpinner.selectedItem.toString().toUpperCase())
+                if (currentState != newState) {
+                    textfieldCode.state = newState
+                }
+                val currentStyle = textfieldCode.style
+                val newStyle = AndesTextfieldCodeStyle.valueOf(styleSpinner.selectedItem.toString().toUpperCase())
+                if (currentStyle != newStyle) {
+                    textfieldCode.style = newStyle
+                }
             }
 
             clearButton.setOnClickListener {

@@ -28,8 +28,7 @@
         android:layout_marginTop="@dimen/andes_textfield_container_marginTop"
         android:minHeight="@dimen/andes_textfield_container_minHeight"
         android:addStatesFromChildren="true"
-        tools:itemCount="3"
-        tools:listitem="@layout/andes_textfield_box"/>
+        tools:itemCount="3"/>
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/andes_textfield_code_icon"

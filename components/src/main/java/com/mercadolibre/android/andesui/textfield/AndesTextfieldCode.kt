@@ -1,14 +1,13 @@
 package com.mercadolibre.android.andesui.textfield
 
+import android.content.ClipboardManager
 import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.text.InputType
 import android.util.AttributeSet
 import android.util.TypedValue
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.facebook.drawee.view.SimpleDraweeView
@@ -19,12 +18,13 @@ import com.mercadolibre.android.andesui.textfield.factory.AndesTextfieldCodeAttr
 import com.mercadolibre.android.andesui.textfield.factory.AndesTextfieldCodeConfigurationFactory
 import com.mercadolibre.android.andesui.textfield.state.AndesTextfieldCodeState
 import com.mercadolibre.android.andesui.textfield.style.AndesTextfieldCodeStyle
+import com.mercadolibre.android.andesui.textfield.textwatcher.AndesCodeFocusManagement
 import com.mercadolibre.android.andesui.textfield.textwatcher.AndesTextfieldBoxWatcher
-import com.mercadolibre.android.andesui.textfield.textwatcher.AndesTextfieldCodeWatcher
+import com.mercadolibre.android.andesui.textfield.textwatcher.AndesCodeTextChangedHandler
+import com.mercadolibre.android.andesui.textfield.textwatcher.AndesTextfieldBoxWatcher.Companion.DIRTY_CHARACTER
+import kotlin.math.min
 
 class AndesTextfieldCode : ConstraintLayout {
-
-    private var canMove: Boolean = true
 
     /**
      * Getter and setter for [text].
@@ -79,6 +79,7 @@ class AndesTextfieldCode : ConstraintLayout {
         set(value) {
             andesTextfieldCodeAttrs = andesTextfieldCodeAttrs.copy(style = value)
             val config = createConfig()
+            setUpFocusManagement(config)
             setUpAndesTextfieldCodeWatcher(config)
             setupBoxStyleComponent(config)
         }
@@ -89,7 +90,8 @@ class AndesTextfieldCode : ConstraintLayout {
     private lateinit var labelComponent: TextView
     private lateinit var helperComponent: TextView
     private lateinit var iconComponent: SimpleDraweeView
-    private lateinit var textWatcher: AndesTextfieldCodeWatcher
+    private lateinit var textChangedHandler: AndesCodeTextChangedHandler
+    private lateinit var focusManagement: AndesCodeFocusManagement
     private var currentText: String? = null
     private var onCompletionListener: OnCompletionListener? = null
     private var onTextChangeListener: OnTextChangeListener? = null
@@ -138,6 +140,7 @@ class AndesTextfieldCode : ConstraintLayout {
         setupViewAsClickable()
         setupLabelComponent(config)
         setupHelperComponent(config)
+        setUpFocusManagement(config)
         setUpAndesTextfieldCodeWatcher(config)
         setupBoxStyleComponent(config)
         setupColorComponents(config)
@@ -224,38 +227,34 @@ class AndesTextfieldCode : ConstraintLayout {
         text = currentText?.takeIf { it.isNotEmpty() }
     }
 
+    /**
+     * Gets data from the config and create an instance of AndesCodeTextChangedHandler
+     */
     private fun setUpAndesTextfieldCodeWatcher(config: AndesTextfieldCodeConfiguration) {
-        val boxCounter = config.boxesPattern.sum()
-        textWatcher = AndesTextfieldCodeWatcher(boxCounter, onChange = { indexView, text ->
-            val index = if (currentText?.length ?: 0 >= text.length) indexView - 1 else indexView + 1
-            if (indexView in 0 until boxCounter - 1) {
-                getBoxAt(indexView)?.isTextFieldFocusableInTouchMode(false)
-            }
-            if (index in 0 until boxCounter && canMove) {
-                getBoxAt(index)?.also {
-                    it.isTextFieldFocusableInTouchMode(true)
-                    it.requestFocusOnTextField()
-                }
-            }
-            currentText = text
-            onTextChangeListener?.onChange(currentText.orEmpty())
-        }, onComplete = {
-            onCompletionListener?.onComplete()
-        })
+        textChangedHandler = AndesCodeTextChangedHandler(config.boxesPattern.sum(),
+            onChange = { text ->
+                currentText = text
+                onTextChangeListener?.onChange(currentText.orEmpty())
+            },
+            onComplete = { isFull -> onCompletionListener?.onComplete(isFull) })
     }
 
-    private fun setUpAndesTextfieldCodeKeyListener(boxView: AndesTextfield) {
-        boxView.setAndesTextFieldKeyListener(OnKeyListener { view, _, keyEvent ->
-            if (keyEvent?.keyCode == KeyEvent.KEYCODE_DEL) {
-                (view as EditText?)?.let {
-                    canMove = it.text.isNullOrEmpty()
-                    if (canMove) {
-                        it.setText("")
-                    }
+    /**
+     * Gets data from the config and create an instance of AndesCodeFocusManagement
+     */
+    private fun setUpFocusManagement(config: AndesTextfieldCodeConfiguration) {
+        focusManagement = AndesCodeFocusManagement(config.boxesPattern.sum() - 1) { nextFocus, previousFocus ->
+            getBoxAt(previousFocus)?.also {
+                it.setAndesFocusableInTouchMode(false)
+            }
+            getBoxAt(nextFocus)?.also {
+                it.setAndesFocusableInTouchMode(true)
+                it.requestFocusOnTextField()
+                if (nextFocus < previousFocus) {
+                    it.text = DIRTY_CHARACTER
                 }
             }
-            false
-        })
+        }
     }
 
     /**
@@ -265,15 +264,22 @@ class AndesTextfieldCode : ConstraintLayout {
         val boxView = AndesTextfield(
             context = context,
             state = config.boxState,
-            counter = 1,
+            counter = 2,
             inputType = InputType.TYPE_CLASS_NUMBER).also {
             it.setAndesTextAlignment(View.TEXT_ALIGNMENT_CENTER)
             it.showCounter = false
         }
         textfieldBoxCodeContainer.addView(boxView)
         boxView.layoutParams = (boxView.layoutParams as LinearLayout.LayoutParams).also { it.width = config.boxWidth }
-        setUpAndesTextfieldCodeKeyListener(boxView)
-        addTextWatcher(boxView, textfieldBoxCodeContainer.indexOfChild(boxView))
+
+        val indexOfBox = textfieldBoxCodeContainer.indexOfChild(boxView)
+
+        setOnFocusChangeListener(boxView)
+        setTextWatcher(boxView, indexOfBox)
+        setOnCreateContextMenuListenerTextField(boxView, indexOfBox)
+        if (indexOfBox > 0) {
+            boxView.setAndesFocusableInTouchMode(false)
+        }
     }
 
     /**
@@ -294,18 +300,38 @@ class AndesTextfieldCode : ConstraintLayout {
     /**
      * Sets each character of newText in the boxes.
      */
-    private fun setupTextComponent(newText: String?) {
+    private fun setupTextComponent(newText: String?, startIndex: Int = 0) {
         var childCount = textfieldBoxCodeContainer.childCount
         if (!newText.isNullOrEmpty()) {
+            textChangedHandler.reset(startIndex)
+            if (startIndex == 0) {
+                focusManagement.reset()
+            }
             val chars = newText.replace("\\D+".toRegex(), "").also {
                 if (it.length >= childCount) {
                     it.substring(0, childCount)
                 }
                 currentText = it
-            }.toCharArray()
+            }
+            val auxArray = Array(childCount) { DIRTY_CHARACTER }
+            val auxIndices = IntRange(0, min(auxArray.lastIndex, chars.lastIndex))
 
-            foreachBox(chars.indices) { index, boxView ->
-                boxView.text = chars[index].toString()
+            auxIndices.forEach { auxArray[it] = "${chars[it]}" }
+
+            val emptyBoxes = childCount - startIndex
+            var endIndex = (startIndex + min(emptyBoxes, auxArray.lastIndex))
+            endIndex = endIndex.takeIf { it < childCount } ?: endIndex - 1
+
+            var charIndex = 0
+            val indices = IntRange(startIndex, endIndex)
+            foreachBox(indices) { _, boxView ->
+                var auxText = auxArray[charIndex++]
+                if (auxText == DIRTY_CHARACTER) {
+                    boxView.setAndesFocusableInTouchMode(false)
+                } else {
+                    auxText = DIRTY_CHARACTER + auxText
+                }
+                boxView.text = auxText
             }
         } else {
             currentText = null
@@ -343,10 +369,39 @@ class AndesTextfieldCode : ConstraintLayout {
         }
     }
 
+    private fun setOnCreateContextMenuListenerTextField(textfield: AndesTextfield, indexView: Int) {
+        textfield.setAndesTextContextMenuItemListener(object : AndesEditText.OnTextContextMenuItemListener {
+            override fun onPaste(): Boolean {
+                val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager?
+                val textToPaste = clipboard?.primaryClip?.getItemAt(0)?.text
+                textToPaste?.let { setupTextComponent(it.toString(), indexView) }
+                return true
+            }
+        })
+    }
+
+    private fun setOnFocusChangeListener(textfield: AndesTextfield) {
+        textfield.setAndesFocusChangeListener(OnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && textfield.text.isNullOrEmpty()) {
+                textfield.text = DIRTY_CHARACTER
+            }
+        })
+    }
+
+    private fun setTextWatcher(textfield: AndesTextfield, indexView: Int) {
+        textfield.textWatcher = AndesTextfieldBoxWatcher(textChangedHandler, focusManagement, indexView)
+    }
+
+    /**
+     * Set a handler to listen when the boxes are full.
+     */
     fun setOnCompleteListener(handler: OnCompletionListener) {
         onCompletionListener = handler
     }
 
+    /**
+     * Set a handler to listen when there is a change of text in the boxes.
+     */
     fun setOnTextChangeListener(handler: OnTextChangeListener) {
         onTextChangeListener = handler
     }
@@ -360,22 +415,17 @@ class AndesTextfieldCode : ConstraintLayout {
     }
 
     private fun getBoxAt(index: Int): AndesTextfield? {
-        return textfieldBoxCodeContainer.getChildAt(index) as AndesTextfield?
-    }
-
-    private fun addTextWatcher(textfield: AndesTextfield, indexView: Int) {
-        textfield.textWatcher = AndesTextfieldBoxWatcher(textWatcher, indexView)
+        return textfieldBoxCodeContainer.getChildAt(index) as? AndesTextfield?
     }
 
     private fun createConfig() = AndesTextfieldCodeConfigurationFactory.create(context, andesTextfieldCodeAttrs)
-
 
     interface OnTextChangeListener {
         fun onChange(text: String)
     }
 
     interface OnCompletionListener {
-        fun onComplete()
+        fun onComplete(isFull: Boolean)
     }
 
     /**
