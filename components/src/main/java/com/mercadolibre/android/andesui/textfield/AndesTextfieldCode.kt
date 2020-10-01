@@ -212,7 +212,7 @@ class AndesTextfieldCode : ConstraintLayout {
                 setupMarginBetweenBoxes(config, boxes == 0)
             }
         }
-        setupTextComponent(currentText)
+        currentText?.takeIf { it.isNotEmpty() }?.let { setupTextComponent(it) }
     }
 
     /**
@@ -242,6 +242,7 @@ class AndesTextfieldCode : ConstraintLayout {
                 it.requestFocusOnTextField()
                 if (nextFocus < previousFocus) {
                     it.text = DIRTY_CHARACTER
+                    it.setSelection(DIRTY_CHARACTER.length)
                 }
             }
         }
@@ -291,43 +292,64 @@ class AndesTextfieldCode : ConstraintLayout {
      * Sets each character of newText in the boxes.
      */
     private fun setupTextComponent(newText: String?, startIndex: Int = 0) {
-        var childCount = textfieldBoxCodeContainer.childCount
-        val cleanText = newText.takeIf { !it.isNullOrEmpty() }?.replace("\\D+".toRegex(), "")
-        textChangedHandler.reset(startIndex)
-        if (!cleanText.isNullOrEmpty()) {
-            if (startIndex == 0) {
-                focusManagement.reset()
+        val cleanText = cleanText(newText)
+        if (cleanText != null) {
+            textChangedHandler.reset(startIndex)
+        }
+        when {
+            cleanText == null -> Unit
+            cleanText.isEmpty() -> cleanBoxes()
+            cleanText.isNotEmpty() -> setTextInBoxes(cleanText, startIndex)
+        }
+    }
+
+
+    private fun setTextInBoxes(cleanText: String, startIndex: Int = 0) {
+        val childCount = textfieldBoxCodeContainer.childCount
+        val textArray = Array(childCount) { DIRTY_CHARACTER }
+        IntRange(0, min(textArray.lastIndex, cleanText.lastIndex)).forEach { textArray[it] = "${cleanText[it]}" }
+
+        if (startIndex == 0) {
+            focusManagement.reset()
+        }
+        var charIndex = 0
+        var lastIsDirty = false
+        val emptyBoxes = childCount - startIndex
+        val endIndex = (startIndex + min(emptyBoxes - 1, textArray.lastIndex))
+        val indices = IntRange(startIndex, endIndex)
+
+        foreachBox(indices) { _, boxView ->
+            var boxText = textArray[charIndex++]
+            boxText = boxText.takeIf { it == DIRTY_CHARACTER } ?: "$DIRTY_CHARACTER$boxText"
+
+            if (boxText == DIRTY_CHARACTER) {
+                boxView.setAndesFocusableInTouchMode(!lastIsDirty)
+                lastIsDirty = true
             }
-            val boxTextArray = Array(childCount) { DIRTY_CHARACTER }
 
-            IntRange(0, min(boxTextArray.lastIndex, cleanText.lastIndex)).forEach {
-                boxTextArray[it] = "${cleanText[it]}"
-            }
-            var charIndex = 0
-            var lastIsDirty = false
-            val emptyBoxes = childCount - startIndex
-            val endIndex = (startIndex + min(emptyBoxes - 1, boxTextArray.lastIndex))
-            val indices = IntRange(startIndex, endIndex)
-
-            foreachBox(indices) { _, boxView ->
-                var boxText = boxTextArray[charIndex++]
-                boxText = boxText.takeIf { it == DIRTY_CHARACTER } ?: "$DIRTY_CHARACTER$boxText"
-
-                if (boxText == DIRTY_CHARACTER) {
-                    boxView.setAndesFocusableInTouchMode(!lastIsDirty)
-                    lastIsDirty = true
-                }
-
-                boxView.text = boxText
-            }
-        } else {
-            focusManagement.reset(childCount - 1)
-            for (index in --childCount downTo 0) {
-                getBoxAt(index)?.let { boxView ->
-                    boxView.text = cleanText
-                }
+            with(boxView) {
+                text = boxText
+                setSelection(boxText.length)
             }
         }
+    }
+
+    private fun cleanBoxes() {
+        var childCount = textfieldBoxCodeContainer.childCount
+        focusManagement.reset(childCount - 1)
+        for (index in --childCount downTo 0) {
+            getBoxAt(index)?.let { boxView ->
+                boxView.text = ""
+            }
+        }
+    }
+
+    private fun cleanText(newText: String?): String? {
+        if (newText.isNullOrEmpty()) {
+            return ""
+        }
+
+        return newText.replace("\\D+".toRegex(), "").takeIf { it.isNotEmpty() }
     }
 
     /**
@@ -372,7 +394,11 @@ class AndesTextfieldCode : ConstraintLayout {
     private fun setOnFocusChangeListener(textfield: AndesTextfield) {
         textfield.setAndesFocusChangeListener(OnFocusChangeListener { _, hasFocus ->
             if (hasFocus && textfield.text.isNullOrEmpty()) {
-                textfield.text = DIRTY_CHARACTER
+                with(textfield) {
+                    text = DIRTY_CHARACTER
+                    setSelection(DIRTY_CHARACTER.length)
+                }
+
             }
         })
     }
@@ -396,7 +422,7 @@ class AndesTextfieldCode : ConstraintLayout {
     }
 
     private fun foreachBox(range: IntRange, action: (Int, AndesTextfield) -> Unit) {
-        for(index in range) {
+        for (index in range) {
             getBoxAt(index)?.let {
                 action(index, it)
             }

@@ -40,7 +40,6 @@ class AndesTextfield : ConstraintLayout {
         get() = textComponent.text.toString()
         set(value) {
             textComponent.setText(maskWatcher?.getTextWithMask(value) ?: value)
-            textComponent.setSelection(value?.length ?: 0)
             setupCounterComponent(createConfig())
         }
 
@@ -679,14 +678,33 @@ class AndesTextfield : ConstraintLayout {
         textComponent.textAlignment = textAlignment
     }
 
+    /**
+     * Set selection for textComponent
+     * Only visible for internal development
+     */
+    internal fun setSelection(selection: Int) {
+        textComponent.setSelection(selection)
+    }
+
+    /**
+     * Set isFocusableInTouchMode for textComponent
+     * Only visible for internal development
+     */
     internal fun setAndesFocusableInTouchMode(isFocusableInTouchMode: Boolean) {
         textComponent.isFocusableInTouchMode = isFocusableInTouchMode
     }
 
+    /**
+     * Set onFocusChangeListener for textComponent
+     * Only visible for internal development
+     */
     internal fun setAndesFocusChangeListener(onFocusChangeListener: OnFocusChangeListener) {
         textComponent.onFocusChangeListener = onFocusChangeListener
     }
-
+    /**
+     * Set contextMenuItemListener for textComponent
+     * Only visible for internal development
+     */
     internal fun setAndesTextContextMenuItemListener(
         contextMenuItemListener: AndesEditText.OnTextContextMenuItemListener) {
         textComponent.setOnTextContextMenuItemListener(contextMenuItemListener)

@@ -287,14 +287,14 @@ class TextfieldShowcaseActivity : AppCompatActivity() {
 
             textfieldCode.setOnTextChangeListener(object : AndesTextfieldCode.OnTextChangeListener {
                 override fun onChange(text: String) {
-                    Log.d("Andes", "TEXT CHANGE: $text")
+                    Log.i("JORGE", "TEXT CHANGE: $text")
                 }
             })
 
             textfieldCode.setOnCompleteListener(object : AndesTextfieldCode.OnCompletionListener {
                 override fun onComplete(isFull: Boolean) {
                     if (isFull) {
-                        Log.d("Andes", "TEXT COMPLETE: ${textfieldCode.text}")
+                        Log.i("JORGE", "TEXT COMPLETE: ${textfieldCode.text}")
                     }
                 }
             })

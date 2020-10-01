@@ -4,6 +4,10 @@ import android.content.Context
 import android.support.v7.widget.AppCompatEditText
 import android.util.AttributeSet
 
+
+/**
+ * Custom EditText for to be able to handle the actions of onTextContextMenuItem.
+ */
 internal class AndesEditText : AppCompatEditText {
 
     private var contextMenuListener: OnTextContextMenuItemListener = object : OnTextContextMenuItemListener {}
@@ -33,6 +37,9 @@ internal class AndesEditText : AppCompatEditText {
         return consumed || super.onTextContextMenuItem(id)
     }
 
+    /**
+     * Interface for listen the actions of copy, cut and paste.
+     */
     internal interface OnTextContextMenuItemListener {
         fun onCut(): Boolean = false
         fun onPaste(): Boolean = false

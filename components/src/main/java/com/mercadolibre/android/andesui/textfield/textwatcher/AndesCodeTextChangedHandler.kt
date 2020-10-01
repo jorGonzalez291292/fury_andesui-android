@@ -20,7 +20,7 @@ internal class AndesCodeTextChangedHandler(
         }
     }
 
-    fun reset(from: Int = 0) {
+    fun reset(from: Int) {
         IntRange(from, textArray.lastIndex).forEach { textArray[it] = "" }
     }
 }
