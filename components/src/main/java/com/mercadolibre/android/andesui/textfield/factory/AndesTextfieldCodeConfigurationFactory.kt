@@ -29,6 +29,7 @@ internal data class AndesTextfieldCodeConfiguration(
     val isEnable: Boolean
 )
 
+@Suppress("TooManyFunctions")
 internal object AndesTextfieldCodeConfigurationFactory {
 
     fun create(context: Context, andesTextfieldCodeAttrs: AndesTextfieldCodeAttrs): AndesTextfieldCodeConfiguration {

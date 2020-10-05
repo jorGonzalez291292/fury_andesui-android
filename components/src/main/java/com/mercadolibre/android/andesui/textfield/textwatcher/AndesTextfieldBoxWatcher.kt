@@ -22,7 +22,9 @@ internal class AndesTextfieldBoxWatcher(
         if (!wasDirty || !isDeleting) {
             val textToChange = charSequence.takeIf { it.isEmpty() || !charSequence.contains(DIRTY_CHARACTER) }
                 ?: charSequence.filter { it != DIRTY_CHARACTER[0] }.takeIf { it.isNotEmpty() || !wasDirty }
-            textToChange?.let { andesCodeTextChangedHandler.onTextChanged(it, indexChild) }
+            textToChange?.let {
+                andesCodeTextChangedHandler.onTextChanged(it, indexChild)
+            }
         }
     }
 
@@ -38,7 +40,7 @@ internal class AndesTextfieldBoxWatcher(
                 editable.isNotEmpty() -> {
                     focusManagement.goToNextFocus()
                 }
-                editable.isEmpty() && indexChild > 0 -> {
+                editable.isEmpty() -> {
                     focusManagement.goToPreviousFocus()
                 }
             }

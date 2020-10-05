@@ -24,6 +24,7 @@ import com.mercadolibre.android.andesui.textfield.textwatcher.AndesCodeTextChang
 import com.mercadolibre.android.andesui.textfield.textwatcher.AndesTextfieldBoxWatcher.Companion.DIRTY_CHARACTER
 import kotlin.math.min
 
+@Suppress("TooManyFunctions")
 class AndesTextfieldCode : ConstraintLayout {
 
     /**
@@ -125,7 +126,7 @@ class AndesTextfieldCode : ConstraintLayout {
         state: AndesTextfieldCodeState) {
         andesTextfieldCodeAttrs = AndesTextfieldCodeAttrs(label, helpLabel, style, state)
         val config = AndesTextfieldCodeConfigurationFactory.create(context, andesTextfieldCodeAttrs)
-        setupColorComponents(config)
+        setupComponents(config)
     }
 
     private fun setupComponents(config: AndesTextfieldCodeConfiguration) {
