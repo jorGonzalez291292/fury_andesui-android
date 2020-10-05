@@ -430,7 +430,7 @@ class AndesTextfieldCode : ConstraintLayout {
     }
 
     private fun getBoxAt(index: Int): AndesTextfield? {
-        return textfieldBoxCodeContainer.getChildAt(index) as? AndesTextfield?
+        return textfieldBoxCodeContainer.getChildAt(index) as AndesTextfield?
     }
 
     private fun createConfig() = AndesTextfieldCodeConfigurationFactory.create(context, andesTextfieldCodeAttrs)
