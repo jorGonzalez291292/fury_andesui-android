@@ -375,8 +375,8 @@ class AndesTextfieldCode : ConstraintLayout {
      * Gets data from the config to sets the state in the boxes.
      */
     private fun setupBoxStateComponent(config: AndesTextfieldCodeConfiguration) {
-        val childCount = textfieldBoxCodeContainer.childCount - 1
-        foreachBox(childCount..0) { _, boxView ->
+        val childCount = textfieldBoxCodeContainer.childCount
+        foreachBox(0 until childCount) { _, boxView ->
             boxView.state = config.boxState
         }
     }
