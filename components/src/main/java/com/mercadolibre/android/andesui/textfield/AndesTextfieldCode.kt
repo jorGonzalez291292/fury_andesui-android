@@ -2,27 +2,32 @@ package com.mercadolibre.android.andesui.textfield
 
 import android.content.ClipboardManager
 import android.content.Context
+import android.os.Parcelable
 import android.support.constraint.ConstraintLayout
 import android.text.InputType
 import android.util.AttributeSet
+import android.util.SparseArray
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnFocusChangeListener
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.facebook.drawee.view.SimpleDraweeView
 import com.mercadolibre.android.andesui.R
-import com.mercadolibre.android.andesui.textfield.factory.*
 import com.mercadolibre.android.andesui.textfield.factory.AndesTextfieldCodeAttrs
 import com.mercadolibre.android.andesui.textfield.factory.AndesTextfieldCodeAttrsParser
+import com.mercadolibre.android.andesui.textfield.factory.AndesTextfieldCodeConfiguration
 import com.mercadolibre.android.andesui.textfield.factory.AndesTextfieldCodeConfigurationFactory
 import com.mercadolibre.android.andesui.textfield.state.AndesTextfieldCodeState
 import com.mercadolibre.android.andesui.textfield.style.AndesTextfieldCodeStyle
 import com.mercadolibre.android.andesui.textfield.textwatcher.AndesCodeFocusManagement
-import com.mercadolibre.android.andesui.textfield.textwatcher.AndesTextfieldBoxWatcher
 import com.mercadolibre.android.andesui.textfield.textwatcher.AndesCodeTextChangedHandler
+import com.mercadolibre.android.andesui.textfield.textwatcher.AndesTextfieldBoxWatcher
 import com.mercadolibre.android.andesui.textfield.textwatcher.AndesTextfieldBoxWatcher.Companion.DIRTY_CHARACTER
+import kotlinx.android.parcel.Parcelize
 import kotlin.math.min
+
 
 @Suppress("TooManyFunctions")
 class AndesTextfieldCode : ConstraintLayout {
@@ -258,6 +263,7 @@ class AndesTextfieldCode : ConstraintLayout {
             state = config.boxState,
             counter = 2,
             inputType = InputType.TYPE_CLASS_NUMBER).also {
+            it.id = View.generateViewId()
             it.setAndesTextAlignment(View.TEXT_ALIGNMENT_CENTER)
             it.showCounter = false
         }
@@ -443,6 +449,46 @@ class AndesTextfieldCode : ConstraintLayout {
     interface OnCompletionListener {
         fun onComplete(isFull: Boolean)
     }
+
+    override fun dispatchSaveInstanceState(container: SparseArray<Parcelable?>?) {
+        dispatchFreezeSelfOnly(container)
+    }
+
+    override fun dispatchRestoreInstanceState(container: SparseArray<Parcelable?>?) {
+        dispatchThawSelfOnly(container)
+    }
+
+    override fun onSaveInstanceState(): Parcelable? {
+        return SavedState(currentText.orEmpty(),
+            state.name,
+            style.name,
+            label.orEmpty(),
+            helper.orEmpty(),
+            super.onSaveInstanceState())
+    }
+
+    override fun onRestoreInstanceState(savedState: Parcelable) {
+        if(savedState is SavedState) {
+            super.onRestoreInstanceState(savedState.superState)
+            currentText = savedState.currentText
+            state = AndesTextfieldCodeState.valueOf(savedState.state)
+            style = AndesTextfieldCodeStyle.valueOf(savedState.style)
+            label = savedState.label
+            helper = savedState.helper
+        } else {
+            super.onRestoreInstanceState(savedState)
+        }
+    }
+
+    @Parcelize
+    internal data class SavedState (
+        val currentText: String,
+        val state: String,
+        val style: String,
+        val label: String,
+        val helper: String,
+        val superState: Parcelable?
+    ): Parcelable
 
     /**
      * Default values for AndesTextfieldCode basic properties
