@@ -263,7 +263,6 @@ class AndesTextfieldCode : ConstraintLayout {
             state = config.boxState,
             counter = 2,
             inputType = InputType.TYPE_CLASS_NUMBER).also {
-            it.id = View.generateViewId()
             it.setAndesTextAlignment(View.TEXT_ALIGNMENT_CENTER)
             it.showCounter = false
         }
