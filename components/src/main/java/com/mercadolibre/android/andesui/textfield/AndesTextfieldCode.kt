@@ -458,7 +458,7 @@ class AndesTextfieldCode : ConstraintLayout {
     }
 
     override fun onSaveInstanceState(): Parcelable? {
-        return SavedState(currentText.orEmpty(),
+        return AndesTextfieldCodeSavedState(currentText.orEmpty(),
             state.name,
             style.name,
             label.orEmpty(),
@@ -467,7 +467,7 @@ class AndesTextfieldCode : ConstraintLayout {
     }
 
     override fun onRestoreInstanceState(savedState: Parcelable) {
-        if(savedState is SavedState) {
+        if(savedState is AndesTextfieldCodeSavedState) {
             super.onRestoreInstanceState(savedState.superState)
             currentText = savedState.currentText
             state = AndesTextfieldCodeState.valueOf(savedState.state)
@@ -480,7 +480,7 @@ class AndesTextfieldCode : ConstraintLayout {
     }
 
     @Parcelize
-    internal data class SavedState (
+    internal data class AndesTextfieldCodeSavedState (
         val currentText: String,
         val state: String,
         val style: String,
