@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.widget.LinearLayout
@@ -241,9 +242,11 @@ class AndesTextfieldCode : ConstraintLayout {
     private fun setUpFocusManagement(config: AndesTextfieldCodeConfiguration) {
         focusManagement = AndesCodeFocusManagement(config.boxesPattern.sum() - 1) { nextFocus, previousFocus ->
             getBoxAt(previousFocus)?.also {
+                it.setAndesIsLongClickable(false)
                 it.setAndesFocusableInTouchMode(false)
             }
             getBoxAt(nextFocus)?.also {
+                it.setAndesIsLongClickable(true)
                 it.setAndesFocusableInTouchMode(true)
                 it.requestFocusOnTextField()
                 if (nextFocus < previousFocus) {
@@ -263,8 +266,8 @@ class AndesTextfieldCode : ConstraintLayout {
             state = config.boxState,
             counter = 2,
             inputType = InputType.TYPE_CLASS_NUMBER).also {
-            it.setAndesTextAlignment(View.TEXT_ALIGNMENT_CENTER)
             it.showCounter = false
+            it.setAndesTextAlignment(View.TEXT_ALIGNMENT_CENTER)
         }
         textfieldBoxCodeContainer.addView(boxView)
         boxView.layoutParams = (boxView.layoutParams as LinearLayout.LayoutParams).also { it.width = config.boxWidth }
@@ -275,8 +278,24 @@ class AndesTextfieldCode : ConstraintLayout {
         setTextWatcher(boxView, indexOfBox)
         setOnCreateContextMenuListenerTextField(boxView, indexOfBox)
         if (indexOfBox > 0) {
+            boxView.setAndesIsLongClickable(false)
             boxView.setAndesFocusableInTouchMode(false)
         }
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        val lastIndex = textfieldBoxCodeContainer.childCount - 1
+        for (index in 0..lastIndex) {
+            getBoxAt(index)?.also { andesTextField ->
+                if (andesTextField.text.isNullOrEmpty() ||
+                    andesTextField.text == DIRTY_CHARACTER ||
+                    index == lastIndex) {
+                    andesTextField.requestFocusOnTextField()
+                    return super.onInterceptTouchEvent(ev)
+                }
+            }
+        }
+        return super.onInterceptTouchEvent(ev)
     }
 
     /**
@@ -404,7 +423,6 @@ class AndesTextfieldCode : ConstraintLayout {
                     text = DIRTY_CHARACTER
                     setSelection(DIRTY_CHARACTER.length)
                 }
-
             }
         })
     }

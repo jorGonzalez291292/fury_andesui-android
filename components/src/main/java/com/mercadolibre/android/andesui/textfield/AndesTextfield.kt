@@ -695,6 +695,14 @@ class AndesTextfield : ConstraintLayout {
     }
 
     /**
+     * Set isLongClickable for textComponent
+     * Only visible for internal development
+     */
+    internal fun setAndesIsLongClickable(isClickable: Boolean) {
+        textComponent.isLongClickable = isClickable
+    }
+
+    /**
      * Set onFocusChangeListener for textComponent
      * Only visible for internal development
      */
